@@ -1,16 +1,16 @@
 //
 //  ContentView.swift
-//  news_swiftui
+//  NewsSwiftUI-mvvm
 //
-//  Created by Anna Zharkova on 13.02.2021.
+//  Created by 1 on 22.02.2020.
+//  Copyright © 2020 azharkova. All rights reserved.
 //
 
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        Text("Hello, World!")
     }
 }
 
