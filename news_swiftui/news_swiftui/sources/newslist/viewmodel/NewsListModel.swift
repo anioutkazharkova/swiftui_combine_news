@@ -16,6 +16,7 @@ protocol INewsListLogic {
     func updateFavorite(id: String)
 }
 
+@available(iOS 15.0, *)
 class NewsListModel: ObservableObject,INewsListLogic  {
     var listener: IContainer?
     
@@ -104,6 +105,7 @@ class NewsListModel: ObservableObject,INewsListLogic  {
 }
 
 
+@available(iOS 15.0, *)
 extension NewsListModel : IModel {
     func update(data: Any?) {
         if let data = data as? [NewsItem] {

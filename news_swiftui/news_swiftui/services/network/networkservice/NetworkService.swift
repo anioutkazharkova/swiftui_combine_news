@@ -76,3 +76,39 @@ class NetworkService: NSObject, INetworkService {
         return task
     }
 }
+
+extension Publishers {
+    struct MissingOutputError: Error {}
+}
+
+extension Publisher {
+    @available(iOS 15.0, *)
+    func singleResult() async throws -> Output {
+        var cancellable: AnyCancellable?
+        var didReceiveValue = false
+
+        return try await withCheckedThrowingContinuation { continuation in
+            cancellable = sink(
+                receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                    case .finished:
+                        if !didReceiveValue {
+                            continuation.resume(
+                                throwing: Publishers.MissingOutputError()
+                            )
+                        }
+                    }
+                },
+                receiveValue: { value in
+                    guard !didReceiveValue else { return }
+
+                    didReceiveValue = true
+                    cancellable?.cancel()
+                    continuation.resume(returning: value)
+                }
+            )
+        }
+    }
+}

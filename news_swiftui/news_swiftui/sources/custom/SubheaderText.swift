@@ -17,3 +17,16 @@ struct SubheaderText: View {
           Text(text).font(.system(size: 15))
     }
 }
+
+struct SubHeader: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.system(size: 14))
+    }
+}
+
+extension View {
+    func subtitleStyle() -> some View {
+        self.modifier(SubHeader())
+    }
+}

@@ -10,16 +10,16 @@ import Foundation
 import SwiftUI
 
 struct CachedImage : View {
-    @ObservedObject var imageModel: ImageModel
-    @State var image:UIImage = UIImage()
+    @ObservedObject var imageModel: ImageLoader
+    @State var size: CGFloat = 100
     
     init(withURL url:String) {
-        imageModel = ImageModel(urlString:url)
+        imageModel = ImageLoader(urlString:url)
     }
     
     var body: some View {
-        
-        Image(uiImage:imageModel.image ?? image).resizable().aspectRatio(contentMode: .fill)
+        Image(uiImage:imageModel.image).resizable().scaledToFill().onAppear {
+            imageModel.load()
+        }
     }
-    
 }

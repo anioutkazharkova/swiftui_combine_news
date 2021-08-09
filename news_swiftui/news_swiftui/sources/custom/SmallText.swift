@@ -17,3 +17,16 @@ struct SmallText: View {
           Text(text).font(.system(size: 12))
     }
 }
+
+struct SmallTitle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.system(size: 12))
+    }
+}
+
+extension View {
+    func smallTitleStyle() -> some View {
+        self.modifier(SmallTitle())
+    }
+}

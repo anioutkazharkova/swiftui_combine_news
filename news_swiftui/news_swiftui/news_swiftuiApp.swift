@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 15.0, *)
 @main
 struct news_swiftuiApp: App {
     var body: some Scene {

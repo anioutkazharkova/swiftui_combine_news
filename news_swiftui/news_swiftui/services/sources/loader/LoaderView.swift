@@ -17,7 +17,7 @@ struct LoaderView: View {
             VStack {
                 Text("Loading...")
                     .multilineTextAlignment(.center)
-                ActivityIndicator(isAnimating: .constant(true), style: .large)
+                LoaderIndicator().fixedSize()
             }
             .padding(20)
             .overlay(

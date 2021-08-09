@@ -10,28 +10,18 @@ import Foundation
 import SwiftUI
 import Combine
 
+
+
 class ImageLoader: ObservableObject {
-    var didChange = PassthroughSubject<UIImage, Never>()
-    var data = UIImage() {
-        didSet {
-            didChange.send(data)
-        }
-    }
+    @Published var image: UIImage = UIImage()
+    private var url: String = ""
 
     init(urlString:String) {
-        ImageManager.sharedInstance.receiveImage(forKey: urlString) { (im) in
-            DispatchQueue.main.async {
-                self.data = im
-            }
-        }
+        self.url = urlString
     }
-}
-
-class ImageModel: ObservableObject {
-    @Published var image: UIImage? = nil
-
-    init(urlString:String) {
-        ImageManager.sharedInstance.receiveImage(forKey: urlString) { (im) in
+    
+    func load() {
+        ImageManager.sharedInstance.receiveImage(forKey: url) { (im) in
             DispatchQueue.main.async {
                 self.image = im
             }

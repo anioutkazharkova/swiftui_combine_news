@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 15.0, *)
 struct SearchView: View {
     @Binding var isActive: Bool
     @State private var text: String = ""
@@ -16,11 +17,11 @@ struct SearchView: View {
     
     var body: some View {
         VStack {
-            SearchBar(text: self.$text){(search) in
+            /*SearchBar(text: self.$text){(search) in
                 DispatchQueue.main.async {
                     self.model.searchWithQuery(query: search)
                 }
-            }
+            }*/
             if model.items.count > 0 {
                 List {
                     ForEach(model.items){ item in
@@ -42,14 +43,17 @@ struct SearchView: View {
             Spacer()
         }.onAppear {
             self.isActive = false
-
             self.model.loadSearchHistory()
         }.onDisappear(){
             self.isActive = false
-        }.navigationBarTitle("Search",displayMode: .inline)
+        }.navigationBarTitle("Search",displayMode: .inline).searchable(text: self.$text).onChange(of: self.text) { newValue in
+             //self.model.searchNewsAsync(query: newValue)
+           self.model.searchWithQuery(query: newValue)
+        }
     }
 }
 
+@available(iOS 15.0, *)
 extension SearchView : IModelView {
     var viewModel: IModel? {
         get {

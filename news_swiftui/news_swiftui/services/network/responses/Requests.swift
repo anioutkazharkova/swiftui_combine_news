@@ -8,7 +8,17 @@
 
 import Foundation
 
-enum Requests: String {
-    case everything = "everything"
-    case top = "top-headlines?language=en"
+enum Requests {
+    
+    case everything(query: String)
+    case top
+    
+    var value: String {
+        switch self {
+        case .everything(let query):
+            return  "everything?q=\(query)&from=2021-08-06&to=2021-08-06&sortBy=popularity"
+        case .top:
+            return "top-headlines?language=en"
+        }
+    }
 }

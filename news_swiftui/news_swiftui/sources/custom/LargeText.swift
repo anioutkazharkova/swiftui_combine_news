@@ -15,3 +15,16 @@ struct LargeText: View {
              Text(text).font(.system(size: 22)).bold()
        }
 }
+
+struct LargeTitle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.system(size: 22).bold())
+    }
+}
+
+extension View {
+    func largeTitleStyle() -> some View {
+        self.modifier(LargeTitle())
+    }
+}

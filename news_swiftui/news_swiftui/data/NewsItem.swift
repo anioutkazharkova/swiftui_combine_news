@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import ObjectMapper
 
 // MARK: model for news
 class NewsItem: Codable,Identifiable {
@@ -20,7 +19,7 @@ class NewsItem: Codable,Identifiable {
     var description: String?
     var url: String?
     var urlToImage: String?
-    var publishedAt: Date?
+    var publishedAt: Date? = nil
     var content: String?
     var favorite: Bool = false
     
@@ -46,7 +45,6 @@ class Source:Codable, Equatable {
     var name: String?
     
     init() {}
-    required init?(map: Map) {}
     enum CodingKeys: String, CodingKey {
         case id, name
     }

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 
+@available(iOS 15.0, *)
 class SearchModel : ObservableObject,IModel {
     @Published var text: String = ""
     @Published var items:[NewsItem] = [NewsItem]()
@@ -36,19 +37,17 @@ class SearchModel : ObservableObject,IModel {
     }
     
     func searchWithQuery(query: String) {
-        if query.isEmpty {
-            self.search = self.searchHistory
-            
-        } else {
+        if !query.isEmpty{
             let item = SearchItem(title: query)
             if searchHistory.contains(item) {
                 if let index = searchHistory.firstIndex(of: item) {
                     searchHistory.remove(at: index)
                 }
             }
-            searchHistory.insert(item, at: 0)
+            
             newsService?.saveRecentRequests(items: searchHistory)
             if query.count > 2 {
+                searchHistory.insert(item, at: 0)
                 searchNews(query: query, withRefresh: true)
             } else {
                 searchLocal(query: query)
@@ -56,16 +55,23 @@ class SearchModel : ObservableObject,IModel {
         }
     }
     
-    func searchNews(query: String, withRefresh: Bool) {
-        if (withRefresh) {
-            self.query = query
-            self.page = 0
-            self.total = 0
-        } else {
-            guard foundResults.count < total else {
-                return
-            }
+    @available(iOS 15.0, *)
+    func searchNewsAsync(query: String){
+        self.listener?.showLoading()
+        Task {
+        let result = await self.newsService?.searchNewsAsync(query: query, page: self.page)
+        switch (result) {
+        case .success(let list):
+            self.listener?.hideLoading()
+            self.retrievedData.append(contentsOf: list.articles ?? [NewsItem]())
+            self.items = list.articles ?? [NewsItem]()
+        default:
+            break
         }
+        }
+    }
+    
+    func searchNews(query: String, withRefresh: Bool) {
         self.listener?.showLoading()
         _ = self.newsService?.searchNews(query: query, page: self.page) .sink(receiveCompletion: { [weak self] completion in
             guard let self = self else {return}
@@ -81,35 +87,15 @@ class SearchModel : ObservableObject,IModel {
             guard let self = self else {return}
             self.listener?.hideLoading()
             let results = list.articles ?? [NewsItem]()
-            if results.count > 0 {
-                self.page += 1
-                
-            }
-            self.foundResults.append(contentsOf: results)
-            self.items = self.foundResults
+            self.retrievedData.append(contentsOf: results)
+            self.items = results
             }).store(in: &subscriptions)
     }
     
-    func getNextSearch() {
-        if !self.query.isEmpty {
-            self.searchNews(query: self.query, withRefresh: false)
-        }
-    }
-    
     private func searchLocal(query: String) {
-        foundResults = retrievedData.filter {($0.title ?? "").contains(query)}
-        self.items = self.foundResults
+        self.items = retrievedData.filter {($0.title ?? "").contains(query)}
     }
-    
-    func searchSavedRequest(index: Int) {
-        if let query = searchHistory[index].title {
-            if (query.count > 2) {
-                searchNews(query: query, withRefresh: true)
-            } else {
-                searchLocal(query: query)
-            }
-        }
-    }
+
     
     func update(data: Any?) {
         

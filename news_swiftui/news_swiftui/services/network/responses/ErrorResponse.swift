@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import ObjectMapper
 
 class ErrorResponse: NSObject, Codable, Error {
     var code: Int? = 0

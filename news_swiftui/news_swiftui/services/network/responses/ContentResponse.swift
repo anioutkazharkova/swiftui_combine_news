@@ -30,7 +30,7 @@ class ContentResponse<T: Codable>: NSObject {
         jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd'T'hh:mm:ss'Z'"
-        jsonDecoder.dateDecodingStrategy = .formatted(df)
+        jsonDecoder.dateDecodingStrategy = .iso8601//.formatted(df)
         if code >= 200 && code < 400 {
         do {
             let result = try jsonDecoder.decode(T.self, from: data)

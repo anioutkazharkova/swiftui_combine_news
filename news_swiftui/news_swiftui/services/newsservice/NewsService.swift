@@ -17,6 +17,7 @@ class NewsService: INewsService {
     
     var subscriptions = Set<AnyCancellable>()
 
+    @available(iOS 15.0, *)
     init(networkService: INetworkService) {
         self.networkService = networkService
         self.favoriteDao = DI.dataContainer.favoriteDao
@@ -28,7 +29,7 @@ class NewsService: INewsService {
 
      let parameters = ["page": "\(page)"]
         
-        return self.networkService.request(url: Requests.top.rawValue, parameters: parameters, method: .get, NewsList.self)
+        return self.networkService.request(url: Requests.top.value, parameters: parameters, method: .get, NewsList.self)
     }
 
     // MARK: Sync received data with cached favorite
@@ -61,22 +62,24 @@ class NewsService: INewsService {
     // MARK: Search
 
     func searchNews(query: String, page: Int = 0)->AnyPublisher<NewsList,Error> {
-        networkService.request(url: Requests.top.rawValue, parameters: ["q": "\(query)", "page": "\(page)"], method: Methods.get, NewsList.self)
+        networkService.request(url: Requests.everything(query: query).value, parameters: [:], method: Methods.get, NewsList.self)
             .flatMap({ (list) -> AnyPublisher<NewsList,Error> in
                 return self.sync(data: list)
             }).eraseToAnyPublisher()
+    }
+    
+    @available(iOS 15.0, *)
+    func searchNewsAsync(query: String, page: Int = 0) async -> Result<NewsList,Error>  {
+        do {
+            let newsData = try await networkService.request(url: Requests.everything(query: query).value, parameters: [:], method: Methods.get, NewsList.self)
+            .flatMap({ (list) -> AnyPublisher<NewsList,Error> in
+                return self.sync(data: list)
+            }).eraseToAnyPublisher().singleResult()
         
-        
-        /*{[weak self] (result: ContentResponse<NewsList>) in
-
-            if let data = result.content?.articles {
-                let processed = self?.syncWithFavorite(loadedNews: data)
-                result.content?.articles = processed
-            }
-            DispatchQueue.main.async {
-                completion(result)
-            }
-        }*/
+            return Result.success(newsData)
+        }catch {
+            return Result.failure(error)
+        }
     }
     
     private func sync(data: NewsList? = nil,_ error: Error? = nil) -> AnyPublisher<NewsList,Error> {

@@ -8,7 +8,8 @@
 
 import Foundation
 import  Combine
-protocol INewsService: class {
+@available(iOS 15.0, *)
+protocol INewsService: AnyObject {
     func getNewsList(page: Int)->AnyPublisher<NewsList,Error> 
     func searchNews(query: String, page: Int)->AnyPublisher<NewsList,Error>
     func getRecentRequests(completion: @escaping([SearchItem]) -> Void)
@@ -17,4 +18,6 @@ protocol INewsService: class {
     func getFavorites() -> [NewsItem]
     func removeFromFavorite(newsItem: NewsItem)
     func syncWithFavorite(loadedNews: [NewsItem]) -> [NewsItem]
+    
+    func searchNewsAsync(query: String, page: Int) async -> Result<NewsList,Error>
 }

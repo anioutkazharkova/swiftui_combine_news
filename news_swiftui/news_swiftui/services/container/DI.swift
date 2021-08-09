@@ -9,6 +9,7 @@
 import UIKit
 
 // MARK: simple di 
+@available(iOS 15.0, *)
 class DI {
 
 private static let shared = DI()

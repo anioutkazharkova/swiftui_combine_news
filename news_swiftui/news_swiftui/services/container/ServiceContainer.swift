@@ -9,10 +9,12 @@
 import Foundation
 
 // MARK: DI for services
+@available(iOS 15.0, *)
 protocol  IServiceContainer {
     var newsService: INewsService { get }
 }
 
+@available(iOS 15.0, *)
 class  ServiceContainer: IServiceContainer {
     var _newsService: INewsService?
     

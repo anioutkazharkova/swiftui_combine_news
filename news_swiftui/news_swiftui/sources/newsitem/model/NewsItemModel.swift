@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 
 
+@available(iOS 15.0, *)
 class NewsItemModel: ObservableObject,IModel {
     
     var listener: IContainer?

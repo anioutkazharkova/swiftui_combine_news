@@ -10,16 +10,17 @@ import Foundation
 import SwiftUI
 
 struct ThumbImage : View {
-    @ObservedObject var imageModel:ImageModel
-    @State var image:UIImage = UIImage()
+    @ObservedObject var imageModel: ImageLoader
+    @State var size: CGFloat = 100
     
     init(withURL url:String) {
-        imageModel = ImageModel(urlString:url)
+        imageModel = ImageLoader(urlString:url)
     }
-    
+
     var body: some View {
-        
-        Image(uiImage: imageModel.image ?? image).resizable().aspectRatio(contentMode: .fill).frame(width: CGFloat(100), height: CGFloat(100), alignment: .center).clipped()
+            Image(uiImage:imageModel.image).resizable().aspectRatio(contentMode: .fill).frame(width: size, height: size, alignment: .center).clipped().onAppear {
+            imageModel.load()
+        }
     }
     
 }
