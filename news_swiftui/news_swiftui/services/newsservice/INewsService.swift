@@ -20,4 +20,6 @@ protocol INewsService: AnyObject {
     func syncWithFavorite(loadedNews: [NewsItem]) -> [NewsItem]
     
     func searchNewsAsync(query: String, page: Int) async -> Result<NewsList,Error>
+    func searchNewsAsync2(query: String, page: Int) async -> Result<NewsList,Error>
+    func searchNewsAsync3(query: String, page: Int) async -> Result<NewsList,Error>
 }

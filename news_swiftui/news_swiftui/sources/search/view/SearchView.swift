@@ -47,8 +47,8 @@ struct SearchView: View {
         }.onDisappear(){
             self.isActive = false
         }.navigationBarTitle("Search",displayMode: .inline).searchable(text: self.$text).onChange(of: self.text) { newValue in
-             //self.model.searchNewsAsync(query: newValue)
-           self.model.searchWithQuery(query: newValue)
+             self.model.searchNewsAsync(query: newValue)
+          // self.model.searchWithQuery(query: newValue)
         }
     }
 }

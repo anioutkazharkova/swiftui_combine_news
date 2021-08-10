@@ -12,10 +12,12 @@ import Combine
 @available(iOS 15.0, *)
 class SearchModel : ObservableObject,IModel {
     @Published var text: String = ""
-    @Published var items:[NewsItem] = [NewsItem]()
+   @Published var items:[NewsItem] = [NewsItem]()
     @Published var search:[SearchItem] = [SearchItem]()
     var subscriptions = Set<AnyCancellable>()
     var listener: IContainer?
+    
+    lazy var itemsHolder = Holder(item: items)
     
     private weak var newsService: INewsService? = DI.serviceContainer.newsService
     
@@ -58,17 +60,33 @@ class SearchModel : ObservableObject,IModel {
     @available(iOS 15.0, *)
     func searchNewsAsync(query: String){
         self.listener?.showLoading()
-        Task {
-        let result = await self.newsService?.searchNewsAsync(query: query, page: self.page)
+        Task.detached {
+        let result = await self.newsService?.searchNewsAsync3(query: query, page: self.page)
+            await self.perform {
+                    self.listener?.hideLoading()
+            }
         switch (result) {
         case .success(let list):
-            self.listener?.hideLoading()
             self.retrievedData.append(contentsOf: list.articles ?? [NewsItem]())
-            self.items = list.articles ?? [NewsItem]()
+            await self.perform {
+                self.items = list.articles ?? [NewsItem]()
+            }
+            
+            //await self.updateData(items: list.articles ?? [NewsItem]())
         default:
             break
         }
         }
+    }
+    
+    @MainActor
+    private func perform(action: @escaping()->Void) {
+        action()
+    }
+    
+    @MainActor
+    private func updateData(items: [NewsItem]) {
+        self.items = items
     }
     
     func searchNews(query: String, withRefresh: Bool) {
@@ -99,5 +117,21 @@ class SearchModel : ObservableObject,IModel {
     
     func update(data: Any?) {
         
+    }
+}
+
+
+actor Holder<T> {
+    var content: T
+    init(item: T) {
+        content = item
+    }
+    
+    func changeValue(newData: T) {
+        content = newData
+    }
+    
+    func perform(action: @escaping()->T) {
+        content = action()
     }
 }

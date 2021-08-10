@@ -82,6 +82,33 @@ class NewsService: INewsService {
         }
     }
     
+    @available(iOS 15.0, *)
+    func searchNewsAsync2(query: String, page: Int = 0) async -> Result<NewsList,Error>  {
+        
+            let newsData = await networkService.requestAsync(url: Requests.everything(query: query).value, parameters: [:], method: Methods.get, NewsList.self)
+        return newsData
+    }
+    
+    @available(iOS 15.0, *)
+    func searchNewsAsync3(query: String, page: Int = 0) async -> Result<NewsList,Error>  {
+        do {
+            let result = try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<NewsList,Error>) in
+            networkService.requestSimple(url: Requests.everything(query: query).value, parameters: [:], method: Methods.get, NewsList.self) { (result: Result<NewsList,Error>) in
+                switch result {
+                case .success(let data):
+                    continuation.resume(with: result)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+                
+            }
+        })
+            return Result.success(result)
+        }catch {
+            return Result.failure(error)
+        }
+    }
+    
     private func sync(data: NewsList? = nil,_ error: Error? = nil) -> AnyPublisher<NewsList,Error> {
         return Deferred {
             Future { [weak self] promise in
